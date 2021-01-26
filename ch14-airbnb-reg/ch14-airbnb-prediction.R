@@ -39,7 +39,9 @@ library(cowplot)
 
 # option A: open material as project
 # option B: set working directory for da_case_studies
-#           example: setwd("C:/Users/bekes.gabor/Documents/github/da_case_studies/")
+#           example: 
+
+setwd("/Users/wodediannao/desktop/da_case_studies/")
 
 # set data dir, load theme and functions
 source("ch00-tech-prep/theme_bg.R")
@@ -83,7 +85,7 @@ glimpse(data)
 skim(data)
 
 # where do we have missing variables now?
-to_filter <- sapply(data, function(x) sum(is.na(x)))
+to_filter <- sapply(data, function(x) sum(is.na(x))) # what's function(x)?
 to_filter[to_filter > 0]
 
 # what to do with missing values?
@@ -95,7 +97,7 @@ data <- data %>%
 # 2. imput when few, not that important
 data <- data %>%
   mutate(
-    n_bathrooms =  ifelse(is.na(n_bathrooms), median(n_bathrooms, na.rm = T), n_bathrooms), #assume at least 1 bath
+    n_bathrooms = ifelse(is.na(n_bathrooms), median(n_bathrooms, na.rm = T), n_bathrooms), #assume at least 1 bath
     n_beds = ifelse(is.na(n_beds), n_accommodates, n_beds), #assume n_beds=n_accomodates
     f_bathroom=ifelse(is.na(f_bathroom),1, f_bathroom),
     f_minimum_nights=ifelse(is.na(f_minimum_nights),1, f_minimum_nights),
@@ -103,7 +105,7 @@ data <- data %>%
     ln_beds=ifelse(is.na(ln_beds),0, ln_beds),
     )
 
-# 3. drop columns when many missing not imortant
+# 3. drop columns when many missing not important
 to_drop <- c("usd_cleaning_fee", "p_host_response_rate")
 data <- data %>%
   select(-one_of(to_drop))

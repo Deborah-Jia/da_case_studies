@@ -31,20 +31,24 @@ library(haven)
 library(stargazer)
 library(caret)
 library(grid)
+library(ModelMetrics)
+library(caret)
 
 
 # set working directory
 # option A: open material as project
 # option B: set working directory for da_case_studies
-#           example: setwd("C:/Users/bekes.gabor/Documents/github/da_case_studies/")
+#           example: 
+setwd("/Users/wodediannao/Desktop/da_case_studies/")
 
 # set data dir, load theme and functions
 source("ch00-tech-prep/theme_bg.R")
 source("ch00-tech-prep/da_helper_functions.R")
 
+data_dir <- '/Users/wodediannao/Desktop/da_data_repo'
 # data used
 source("set-data-directory.R") #data_dir must be first defined #
-data_in <- paste(data_dir,"used-cars","clean/", sep = "/")
+data_in <- paste(data_dir,"used_car","clean/", sep = "/")
 
 use_case_dir <- "ch13-used-cars-reg/"
 data_out <- use_case_dir
@@ -74,7 +78,7 @@ data <- data %>% filter(Hybrid ==0) %>% dplyr::select(-Hybrid)
 # check frequency by fuel type
 data %>%
   group_by(fuel) %>%
-  dplyr::summarize(frequency=n()) %>%
+  dplyr::summarize(frequency=n()) %>% # same as 'n=n()'
   mutate(percent = frequency / sum(frequency)*100,
          cumulative_percent = cumsum(frequency)/sum(frequency)*100)
 
@@ -303,17 +307,21 @@ eval <- data.frame(models, k, RSquared, RMSE, BIC)
 eval <- eval %>%
   mutate(models = paste0("(",gsub("reg","",models),")")) %>%
   rename(Model = models, "R-squared" = RSquared, "Training RMSE" = RMSE, "N predictors" = k)
-stargazer(eval, summary = F, out=paste(output,"ch13-table-4-bicrmse.tex",sep=""), digits=2, float = F, no.space = T)
+stargazer(eval, summary = F, out=paste(output,"ch13-table-4-bicrmse.tex",sep=""), 
+          digits=2, float = F, no.space = T)
 # old name: Ch13_bicrmse_R.tex
 # models 1-4 only, 5 too large
 
 # TODO 
 # use stargazer_r to get robust se
 # could be made nicer, also not producing it here
-stargazer_r(list(reg1, reg2, reg3, reg4 ), float=F, se = 'robust', digits=2, dep.var.caption = "Dep. var: price", keep.stat = c("rsq","n"),
+stargazer_r(list(reg1, reg2, reg3, reg4 ), float=F, se = 'robust', digits=2, 
+            dep.var.caption = "Dep. var: price", keep.stat = c("rsq","n"),
             out=paste0(output,"ch13-table-2-multireg1.tex",sep=""), no.space = T)
-stargazer(reg1, reg2, reg3, reg4 , align = T,   digits=2, dep.var.caption = "Dep. var: price", keep.stat = c("rsq","n"),
-            type="text", title = "Cars - regression", out=paste0(output,"ch13-table-2-multireg1.txt",sep=""), no.space = T)
+stargazer(reg1, reg2, reg3, reg4 , align = T,   digits=2, dep.var.caption = "Dep. var: price", 
+          keep.stat = c("rsq","n"),
+            type="text", title = "Cars - regression", 
+          out=paste0(output,"ch13-table-2-multireg1.txt",sep=""), no.space = T)
 # old name: Ch13_multireg1_R.tex
 
 #################################################################
@@ -398,7 +406,7 @@ pred2_new
 
 #get model rmse
 data$p2a <- predict(reg3, data)
-rmse2 <- RMSE(data$p2a,data$price)
+rmse2 <- RMSE(data$p2a, data$price)
 rmse2
 
 # Result summary
@@ -408,8 +416,10 @@ rownames(sum1) <- c('Predicted', 'PI_low (95%)', 'PI_high (95%)')
 
 sum1
 
-stargazer(sum1, summary = F, digits=0, float=F, out=paste(output,"ch13-table-3-pred-new.tex",sep=""))
-stargazer(sum1, summary = F, digits=0, float=F, type="text",  out=paste(output,"ch13-table-3-pred-new.txt",sep=""))
+stargazer(sum1, summary = F, digits=0, float=F, 
+          out=paste(output,"ch13-table-3-pred-new.tex",sep=""))
+stargazer(sum1, summary = F, digits=0, float=F, type="text",  
+          out=paste(output,"ch13-table-3-pred-new.txt",sep=""))
 # old name: Ch13_pred_R.txt
 
 # prediction
