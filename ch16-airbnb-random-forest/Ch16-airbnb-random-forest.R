@@ -433,7 +433,9 @@ save_fig("ch16-figure-3a-rf-pdp-n-accom", output, "small")
 describe(data_holdout_w_prediction$n_accommodates)
 
 
-pdp_n_roomtype <- pdp::partial(rf_model_2, pred.var = "f_room_type", pred.grid = distinct_(data_holdout, "f_room_type"), train = data_train)
+pdp_n_roomtype <- pdp::partial(rf_model_2, pred.var = "f_room_type", 
+                               pred.grid = distinct_(data_holdout, "f_room_type"), 
+                               train = data_train)
 pdp_n_roomtype_plot <- pdp_n_roomtype %>%
   autoplot( ) +
   geom_point(color=color[1], size=2) +

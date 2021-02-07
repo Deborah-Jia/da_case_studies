@@ -1,4 +1,4 @@
-#########################################################################################
+
 # Prepared for Gabor's Data Analysis
 #
 # Data Analysis for Business, Economics, and Policy
@@ -16,11 +16,11 @@
 # CH17A
 # using the bisnode-firmd dataset
 # version 0.9 2020-09-10
-#########################################################################################
 
 
 
-# ------------------------------------------------------------------------------------------------------
+
+# --SET UP------------------------------------------------------------------
 #### SET UP
 # It is advised to start a new session for every case study
 # CLEAR MEMORY
@@ -39,7 +39,8 @@ library(gmodels)
 library(lspline)
 library(sandwich)
 library(modelsummary)
-
+library(ggplot2)
+library(viridis)
 library(rattle)
 library(caret)
 library(pROC)
@@ -72,7 +73,7 @@ output <- paste0(use_case_dir,"output/")
 create_output_if_doesnt_exist(output)
 
 
-#-----------------------------------------------------------------------------------------
+#---begin----------------------------------------------------------------
 
 # THIS IS THE SECOND PART OF THE ch17 CODE
 # USES INTERMEDIATE OUTPUT by ch17-firm-exit-data-prep.R
@@ -85,7 +86,7 @@ create_output_if_doesnt_exist(output)
 data <- read_rds(paste(data_out,"bisnode_firms_clean.rds", sep = "/"))
 
 #summary
-datasummary_skim(data, type='numeric', histogram = TRUE)
+# datasummary_skim(data, type='numeric', histogram = TRUE)
 # datasummary_skim(data, type="categorical")
 
 
@@ -279,10 +280,11 @@ write.csv(lasso_coeffs, paste0(output, "lasso_logit_coeffs.csv"))
 CV_RMSE_folds[["LASSO"]] <- logit_lasso_model$resample[,c("Resample", "RMSE")]
 
 
-#############################################x
+####PART I
+# No loss fn#####################x
 # PART I
 # No loss fn
-########################################
+
 
 # Draw ROC Curve and calculate AUC for each folds --------------------------------
 CV_AUC_folds <- list()
@@ -429,10 +431,10 @@ create_calibration_plot(data_holdout,
   n_bins = 10)
 
 
-#############################################x
+#####PART II.#############################x
 # PART II.
 # We have a loss function
-########################################
+
 
 # Introduce loss function
 # relative cost of of a false negative classification (as compared with a false positive classification)
@@ -528,13 +530,12 @@ cm_object3 <- confusionMatrix(holdout_prediction,data_holdout$default_f)
 cm3 <- cm_object3$table
 cm3
 
-#################################################
+###PREDICTION WITH RANDOM FOREST################
 # PREDICTION WITH RANDOM FOREST
-#################################################
 
-# -----------------------------------------------
+# RANDOM FOREST GRAPH EXAMPLE--------
 # RANDOM FOREST GRAPH EXAMPLE
-# -----------------------------------------------
+
 
 data_for_graph <- data_train
 levels(data_for_graph$default_f) <- list("stay" = "no_default", "exit" = "default")
@@ -553,10 +554,9 @@ save_tree_plot(rf_for_graph, "tree_plot", output, "small", tweak=1)
 
 
 
-#################################################
+###Probability forest######################
 # Probability forest
 # Split by gini, ratio of 1's in each tree, average over trees
-#################################################
 
 # 5 fold cross-validation
 
@@ -667,10 +667,10 @@ holdout_treshold <- coords(roc_obj_holdout, x = best_tresholds[["rf_p"]] , input
 expected_loss_holdout <- (holdout_treshold$fp*FP + holdout_treshold$fn*FN)/length(data_holdout$default)
 expected_loss_holdout
 
-#################################################
+##Classification forest####################
 # Classification forest
 # Split by Gini, majority vote in each tree, majority vote over trees
-#################################################
+
 # Show expected loss with classification RF and default majority voting to compare
 
 train_control <- trainControl(
@@ -717,6 +717,4 @@ kable(x = summary_results, format = "latex", booktabs=TRUE,  digits = 3, row.nam
       linesep = "", col.names = c("Number of predictors", "CV RMSE", "CV AUC",
                                   "CV threshold", "CV expected Loss")) %>%
   cat(.,file= paste0(output, "summary_results.tex"))
-
-
 

@@ -35,6 +35,7 @@ library(modelsummary)
 # option B: set working directory for da_case_studies
 #           example: setwd("C:/Users/bekes.gabor/Documents/github/da_case_studies/")
 
+setwd("~/Desktop/da_case_studies/")
 # set data dir, data used
 source("set-data-directory.R")             # data_dir must be first defined 
 # alternative: give full path here, 
@@ -258,3 +259,4 @@ to_filter[to_filter > 0]
 # N=51646
 
 write_csv(data, paste0(data_out, "airbnb_london_workfile_adj_book.csv"))
+

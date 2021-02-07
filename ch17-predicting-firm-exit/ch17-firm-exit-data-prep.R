@@ -1,4 +1,3 @@
-#########################################################################################
 # Prepared for Gabor's Data Analysis
 #
 # Data Analysis for Business, Economics, and Policy
@@ -14,11 +13,10 @@
 # CH17A
 # using the bisnode-firmd dataset
 # version 0.9 2020-09-10
-#########################################################################################
 
 
 
-# ------------------------------------------------------------------------------------------------------
+# ---------SET UP--------------------------------------------------------------------------------
 #### SET UP
 # It is advised to start a new session for every case study
 # CLEAR MEMORY
@@ -70,9 +68,8 @@ create_output_if_doesnt_exist(output)
 
 
 
-###########################################################
-# Import data
-###########################################################
+#######Import data######################################
+
 
 data <- read_csv(paste(data_in,"cs_bisnode_panel.csv", sep = "/"))
 
@@ -81,9 +78,8 @@ data <- data %>%
   select(-c(COGS, finished_prod, net_dom_sales, net_exp_sales, wages)) %>%
   filter(year !=2016)
 
-###########################################################
+####label engineering###############################
 # label engineering
-###########################################################
 
 # add all missing year and comp_id combinations -
 # originally missing combinations will have NAs in all other columns
@@ -107,7 +103,7 @@ data <- data %>%
 data <- data %>%
   filter(year <=2013)
 
-Hmisc::describe(data$default3)
+# Hmisc::describe(data$default3)
 
 # Size and growth
 summary(data$sales) # There will be NAs, we'll drop them soon
@@ -136,9 +132,8 @@ data <- data %>%
 
 
 
-###########################################################
+####sample design#####################################
  # sample design
-###########################################################
 
 # look at cross section
 data <- data %>%
@@ -150,9 +145,8 @@ data <- data %>%
 Hmisc::describe(data$default)
 write_csv(data,paste0(data_out,"work5.csv"))
 
-###########################################################
+#Feature engineering#########################################
 # Feature engineering
-###########################################################
 
 data <- read_csv(paste0(data_out,"work5.csv"))
 
@@ -175,9 +169,9 @@ data <- data %>%
          gender_m = factor(gender, levels = c("female", "male", "mix")),
          m_region_loc = factor(region_m, levels = c("Central", "East", "West")))
 
-###########################################################
-# look at more financial variables, create ratios
-###########################################################
+
+########## look at more financial variables, create ratios#####
+
 
 # assets can't be negative. Change them to 0 and add a flag.
 data <-data  %>%
@@ -209,9 +203,7 @@ data <- data %>%
   mutate_at(vars(bs_names), funs("bs"=ifelse(total_assets_bs == 0, 0, ./total_assets_bs)))
 
 
-########################################################################
-# creating flags, and winsorizing tails
-########################################################################
+######creating flags, and winsorizing tails############################
 
 # Variables that represent accounting items that cannot be negative (e.g. materials)
 zero <-  c("extra_exp_pl", "extra_inc_pl", "inventories_pl", "material_exp_pl", "personnel_exp_pl",
@@ -245,10 +237,9 @@ variances<- data %>%
 data <- data %>%
   select(-one_of(names(variances)[variances]))
 
-########################################################################
+##########additional: including some imputation#########################
 # additional
 # including some imputation
-########################################################################
 
 # CEO age
 data <- data %>%
@@ -283,9 +274,8 @@ data <- data %>%
   mutate(default_f = factor(default, levels = c(0,1)) %>%
            recode(., `0` = 'no_default', `1` = "default"))
 
-########################################################################
+########sales ############################
  # sales 
-########################################################################
 
 data <- data %>%
   mutate(sales_mil_log_sq=sales_mil_log^2)
@@ -303,9 +293,8 @@ ols_s <- lm(default~sales_mil_log+sales_mil_log_sq,
                 data = data)
 summary(ols_s)
 
-########################################################################
+#######sales change#######################################
 # sales change
-########################################################################
 # Note: graphs not in book
 
 # lowess
